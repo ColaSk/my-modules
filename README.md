@@ -19,3 +19,9 @@
 - mixin
 - atomic
 - atomic_begin_nested
+
+## imageinfo (持续优化)
+
+- xmp
+  - 针对pyexiv2对xmp信息获取时无法获取问题做了优化
+- exif

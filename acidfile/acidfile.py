@@ -11,8 +11,8 @@
 
 # here put the import lib
 import logging
-from .command_container import CommandQueue, CommandStack
-from .command import (Command, RenameCommand, CopyCommand, DeleteCommand)
+from .command import (RenameCommand, CopyCommand, DeleteCommand)
+from .interfaces import Acid, AcidContext, CommandOperator
 
 """文件操作的事务
 # 文件操作:
@@ -29,11 +29,10 @@ from .command import (Command, RenameCommand, CopyCommand, DeleteCommand)
 
 logger = logging.getLogger(__name__)
 
-class AcidFile(object):
+class AcidFile(Acid, CommandOperator, AcidContext):
 
     def __init__(self):
-        self._cque = CommandQueue()
-        self._cstack = CommandStack()
+        super().__init__()
 
     def rename(self, src_path: str, dest_path: str, exec: bool = False):
         cmd = RenameCommand(src_path, dest_path)
@@ -70,17 +69,6 @@ class AcidFile(object):
             cmd = self._cstack.get()
             cmd.undo()
 
-    def __enter__(self):
-        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-
-        if exc_type is None:
-            try:
-                self.commit()
-            except Exception as e:
-                self.rollback()
-                raise e
-        else:
-            self.rollback()
-
+class AcidDir(AcidContext):
+    pass
