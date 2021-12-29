@@ -35,20 +35,29 @@ class AcidFile(object):
         self._cque = CommandQueue()
         self._cstack = CommandStack()
 
-    def rename(self, src_path: str, dest_path: str) -> Command:
+    def rename(self, src_path: str, dest_path: str, exec: bool = False):
         cmd = RenameCommand(src_path, dest_path)
-        self._cque.put(cmd)
-        return cmd
+        if exec:
+            cmd.execute()
+            self._cstack.put(cmd)
+        else:
+            self._cque.put(cmd)
 
-    def copy(self, src_path: str, dest_path: str) -> Command:
+    def copy(self, src_path: str, dest_path: str, exec: bool = False):
         cmd = CopyCommand(src_path, dest_path)
-        self._cque.put(cmd)
-        return cmd
+        if exec:
+            cmd.execute()
+            self._cstack.put(cmd)
+        else:
+            self._cque.put(cmd)
 
-    def delete(self, path: str) -> Command:
+    def delete(self, path: str, exec: bool = False):
         cmd = DeleteCommand(path)
-        self._cque.put(cmd)
-        return cmd
+        if exec:
+            cmd.execute()
+            self._cstack.put(cmd)
+        else:
+            self._cque.put(cmd)
 
     def commit(self):
         while not self._cque.empty:

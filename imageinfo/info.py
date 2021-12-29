@@ -12,7 +12,9 @@ XMPINFO = [
 ]
 
 def get_xmp(fh):
-    """获取图片中的 XMP 信息"""
+    """获取图片中的 XMP 信息
+    源码: exifread._get_xmp()
+    """
 
     xmp_string = b''
     xml_started = False
