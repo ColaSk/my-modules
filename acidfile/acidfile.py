@@ -79,8 +79,8 @@ class AcidFile(object):
             try:
                 self.commit()
             except Exception as e:
-                logger.error(e.__str__())
                 self.rollback()
+                raise e
         else:
-            logger.error(f'exc_type: {exc_type}, exc_value: {exc_val}')
             self.rollback()
+
