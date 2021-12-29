@@ -12,21 +12,6 @@
 # here put the import lib
 
 from abc import ABCMeta, abstractmethod
-from .command_container import CommandQueue, CommandStack
-
-
-class Acid(metaclass=ABCMeta):
-
-    def __init__(self):
-        self._cque = CommandQueue()
-        self._cstack = CommandStack()
-    
-    @abstractmethod
-    def commit(self): pass
-    
-    @abstractmethod
-    def rollback(self): pass
-
 
 class AcidContext:
 

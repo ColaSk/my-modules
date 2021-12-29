@@ -11,8 +11,10 @@
 
 # here put the import lib
 import logging
-from .command import (RenameCommand, CopyCommand, DeleteCommand)
-from .interfaces import Acid, AcidContext, CommandOperator
+from .command import (RenameCommand, CopyCommand, DeleteCommand, 
+                      DirRenameCommand, DirCopyCommand, DirDeleteCommand)
+from .interfaces import AcidContext, CommandOperator
+from .command_container import CommandQueue, CommandStack
 
 """文件操作的事务
 # 文件操作:
@@ -29,10 +31,26 @@ from .interfaces import Acid, AcidContext, CommandOperator
 
 logger = logging.getLogger(__name__)
 
-class AcidFile(Acid, CommandOperator, AcidContext):
+class Acid:
 
     def __init__(self):
-        super().__init__()
+        self._cque = CommandQueue()
+        self._cstack = CommandStack()
+    
+    def commit(self):
+        while not self._cque.empty:
+            cmd = self._cque.get()
+            cmd.execute()
+            self._cstack.put(cmd)
+
+    def rollback(self):
+        while not self._cstack.empty:
+            cmd = self._cstack.get()
+            cmd.undo()
+
+
+class AcidFile(Acid, CommandOperator, AcidContext):
+
 
     def rename(self, src_path: str, dest_path: str, exec: bool = False):
         cmd = RenameCommand(src_path, dest_path)
@@ -58,17 +76,29 @@ class AcidFile(Acid, CommandOperator, AcidContext):
         else:
             self._cque.put(cmd)
 
-    def commit(self):
-        while not self._cque.empty:
-            cmd = self._cque.get()
+
+class AcidDir(Acid, CommandOperator, AcidContext):
+    
+    def rename(self, src_path: str, dest_path: str, exec: bool = False):
+        cmd = DirRenameCommand(src_path, dest_path)
+        if exec:
             cmd.execute()
             self._cstack.put(cmd)
+        else:
+            self._cque.put(cmd)
 
-    def rollback(self):
-        while not self._cstack.empty:
-            cmd = self._cstack.get()
-            cmd.undo()
+    def copy(self, src_path: str, dest_path: str, exec: bool = False):
+        cmd = DirCopyCommand(src_path, dest_path)
+        if exec:
+            cmd.execute()
+            self._cstack.put(cmd)
+        else:
+            self._cque.put(cmd)
 
-
-class AcidDir(AcidContext):
-    pass
+    def delete(self, path: str, exec: bool = False):
+        cmd = DirDeleteCommand(path)
+        if exec:
+            cmd.execute()
+            self._cstack.put(cmd)
+        else:
+            self._cque.put(cmd)
