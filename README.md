@@ -8,3 +8,14 @@
 
 # 功能
 ## acid file (开发中)
+
+- 文件
+  - 重命名
+  - 拷贝
+  - 删除
+
+## SQLAlchemyMixin (持续优化)
+
+- mixin
+- atomic
+- atomic_begin_nested
