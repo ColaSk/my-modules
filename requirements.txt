@@ -2,4 +2,4 @@ Flask==2.0.1
 Flask-Migrate==3.1.0
 Flask-SQLAlchemy==2.5.1
 
-ExifRead==2.3.2
+pyexiv2==2.5.0
