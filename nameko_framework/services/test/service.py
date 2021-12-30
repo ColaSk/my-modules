@@ -10,14 +10,17 @@
 '''
 
 # here put the import lib
-
+import logging
 from nameko.rpc import rpc
+from common import SeriviceBase
 
-class TestService:
+logger = logging.getLogger(__name__)
+
+class TestService(SeriviceBase):
 
     name = "Test"
 
     @rpc
     def test(self, *args, **kwargs):
-        print("test success")
+        logger.info("test success")
         return True
