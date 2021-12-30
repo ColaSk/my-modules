@@ -1,5 +1,12 @@
+# sqlalchemy_mixin
 Flask==2.0.1
 Flask-Migrate==3.1.0
 Flask-SQLAlchemy==2.5.1
 
+# image_info
 pyexiv2==2.5.0
+
+# nameko_framework
+nameko==2.13.0
+
+# acid_file

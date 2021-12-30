@@ -1,0 +1,39 @@
+# mq url
+AMQP_URI: pyamqp://root:root@127.0.0.1:5672
+
+# web serever address
+WEB_SERVER_ADDRESS: 0.0.0.0:8000
+
+# mq exchange
+rpc_exchange: test-rpc
+
+max_workers: 10
+parent_calls_tracked: 10
+
+# logging config
+LOGGING:
+  version: 1
+  formatters: 
+    default: 
+      format: '%(asctime)s-%(levelname)s--%(process)d-%(threadName)s--%(filename)s:%(funcName)s:%(lineno)d--%(message)s'
+    simple: 
+      format: '%(asctime)s-%(levelname)s--%(filename)s:%(funcName)s:%(lineno)d--%(message)s'
+
+  handlers:
+    console:
+      level: DEBUG
+      class: logging.StreamHandler
+      formatter: simple
+    default: 
+      level: DEBUG
+      class: logging.handlers.TimedRotatingFileHandler
+      formatter: default
+      filename: ./logs/root.log
+      when: midnight
+      backupCount: 10
+      encoding: utf-8
+
+  root:
+    level: INFO
+    handlers: [console, default]
+  

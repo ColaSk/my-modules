@@ -7,7 +7,7 @@
 
 
 # 功能
-## acid file (持续优化)
+## acid_file (持续优化)
 
 > 需要进一步测试
 
@@ -20,14 +20,22 @@
   - 拷贝
   - 删除
 
-## SQLAlchemyMixin (持续优化)
+## sqlalchemy_mixin (持续优化)
 
 - mixin
 - atomic
 - atomic_begin_nested
 
-## imageinfo (持续优化)
+## image_info (持续优化)
 
 - xmp
   - 针对pyexiv2对xmp信息获取时无法获取问题做了优化
 - exif
+
+## nameko_framework(未完成)
+
+> nameko 框架 构建方法，以及包含的测试模块
+> 准确的说nameko_framework 不是一个供大众使用的可插拔框架，仅仅是基于风格自己构建的服务架子, 
+> 使得可以专心构建服务而不是将心思用于框架的搭建，你可以将它看成一个没有任何功能但是又什么都包含的
+> 一个例子，仅此而已，顺便又解决了nameko本身存在的一些问题以及基于框架本身特性构建的一些有趣的东西
+
