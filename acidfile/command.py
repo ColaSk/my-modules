@@ -97,7 +97,7 @@ class DirCopyCommand(Command):
         super().__init__()
         self.src_path = src_path
         self.dest_path = dest_path
-        self.ignored = ignored
+        self.ignored =  ignored if ignored else []
 
 
     def execute(self):
@@ -132,7 +132,11 @@ class DirDeleteCommand(Command):
     
     def undo(self):
         super().undo()
-        shutil.copy(self.tempdir_path, self.src_path)
+        shutil.copytree(
+            self.tempdir_path, 
+            self.src_path,
+            dirs_exist_ok=True
+        )
     
     def __del__(self):
         self.tempdir.cleanup()
