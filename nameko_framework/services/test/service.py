@@ -11,7 +11,7 @@
 
 # here put the import lib
 import logging
-from nameko.rpc import rpc
+from common.wrappers import rpc
 from common import SeriviceBase
 
 logger = logging.getLogger(__name__)
