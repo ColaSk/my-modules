@@ -32,7 +32,7 @@
   - 针对pyexiv2对xmp信息获取时无法获取问题做了优化
 - exif
 
-## nameko_framework(未完成)
+## nameko_framework(持续优化)
 
 > nameko 框架 构建方法，以及包含的测试模块
 > 准确的说nameko_framework 不是一个供大众使用的可插拔框架，仅仅是基于风格自己构建的服务架子, 
@@ -54,3 +54,7 @@
 #### 外部服务基类
 - rpc_service_define
 - 定义外部服务基类, 后续可进行 rpc proxy 优化
+
+## fastapi_framework(持续优化)
+
+> fastapi 构建方法，或者说这是一个fastapi的demo
