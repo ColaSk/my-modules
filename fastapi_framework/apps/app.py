@@ -9,20 +9,31 @@
 '''
 
 # here put the import lib
-from typing import Iterable
+from typing import Callable, Dict, Iterable
 from fastapi import FastAPI, APIRouter
 
+def _init_app_routers(app: FastAPI, routers: Iterable[APIRouter] = None) -> None:
+    if not routers:
+        return 
 
-def _init_app_router(app: FastAPI, routers: Iterable[APIRouter] = None):
-    if routers:
-        for router in routers:
-            app.include_router(router, prefix='/api')
+    for router in routers:
+        app.include_router(router, prefix='/api')
 
+def _init_app_exception_handlers(app: FastAPI, handlers: Dict[int, Callable] = None) -> None:
+    if not handlers:
+        return 
+    
+    for code, handler in handlers.items():
+        app.add_exception_handler(code, handler)
+    
 
-def create_app(config: dict = None, routers: Iterable[APIRouter] = None):
+def create_app(config: dict = None, 
+               routers: Iterable[APIRouter] = None, 
+               handlers: Iterable[Callable] = None) -> FastAPI:
 
     app = FastAPI()
     
-    _init_app_router(app, routers)
-    
+    _init_app_routers(app, routers)
+    _init_app_exception_handlers(app, handlers)
+
     return app
