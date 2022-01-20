@@ -9,8 +9,9 @@
 '''
 
 # here put the import lib
-from typing import Callable, Dict, Iterable
-from fastapi import FastAPI, APIRouter
+from typing import Callable, Dict, Iterable, Optional, Sequence
+from fastapi import FastAPI, APIRouter, Depends
+
 
 def _init_app_routers(app: FastAPI, routers: Iterable[APIRouter] = None) -> None:
     if not routers:
@@ -25,13 +26,13 @@ def _init_app_exception_handlers(app: FastAPI, handlers: Dict[int, Callable] = N
     
     for code, handler in handlers.items():
         app.add_exception_handler(code, handler)
-    
 
 def create_app(config: dict = None, 
                routers: Iterable[APIRouter] = None, 
-               handlers: Iterable[Callable] = None) -> FastAPI:
+               handlers: Iterable[Callable] = None,
+               dependencies: Optional[Sequence[Depends]] = None) -> FastAPI:
 
-    app = FastAPI()
+    app = FastAPI(dependencies=dependencies)
     
     _init_app_routers(app, routers)
     _init_app_exception_handlers(app, handlers)
