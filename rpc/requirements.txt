@@ -1,0 +1,5 @@
+python-jsonrpc==0.10.0
+
+# grpc
+grpcio==1.43.0
+protobuf==3.19.3
