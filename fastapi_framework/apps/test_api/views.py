@@ -1,7 +1,7 @@
 from typing import Any, Optional
-from fastapi import APIRouter, Depends, Cookie
+from fastapi import APIRouter, Depends
 from apps.extensions import success_response
-from apps.extensions import RequestBase, request_base, RequestDependBase
+from apps.extensions import RequestBase, RequestDependBase
 from apps.exceptions.exception import UnicornException
 
 router = APIRouter()

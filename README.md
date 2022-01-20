@@ -58,3 +58,7 @@
 ## fastapi_framework(持续优化)
 
 > fastapi 构建方法，或者说这是一个fastapi的demo
+
+## rpc
+
+> python 的一些 rpc 实现

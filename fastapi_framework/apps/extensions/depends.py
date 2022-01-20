@@ -2,8 +2,8 @@ from typing import Optional
 from fastapi import Cookie, Header, Depends
 
 
-def _cookie_depend(cookie: Optional[str] = Cookie(None)):
-    return dict(cookie = cookie)
+def _cookie_depend(csrftoken: Optional[str] = Cookie(None)):
+    return dict(csrftoken = csrftoken)
         
 def _header_depend(
     content_type: Optional[str] = Header(None),
@@ -27,8 +27,11 @@ def _header_depend(
 
 class CookieDependBase(object):
 
-    def __init__(self, cookie: Optional[str] = Cookie(None)):
-        self.cookie = cookie
+    def __init__(
+        self, 
+        csrftoken: Optional[str] = Cookie(None)
+    ):
+        self.csrftoken = csrftoken
 
 
 class HeaderDependBase(object):
@@ -53,7 +56,11 @@ class HeaderDependBase(object):
         self.connection = connection
 
 
-def app_depend(header: HeaderDependBase = Depends(HeaderDependBase)):
-    print(header.__dict__)
+async  def app_depend(
+    header: HeaderDependBase = Depends(HeaderDependBase), 
+    cookie: CookieDependBase = Depends(CookieDependBase)
+):
+    print(header.__dict__, cookie.__dict__)
 
+# 全局依赖项
 dependencies = [Depends(app_depend)]

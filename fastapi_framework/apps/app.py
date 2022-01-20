@@ -11,7 +11,8 @@
 # here put the import lib
 from typing import Callable, Dict, Iterable, Optional, Sequence
 from fastapi import FastAPI, APIRouter, Depends
-
+from starlette.middleware import Middleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 def _init_app_routers(app: FastAPI, routers: Iterable[APIRouter] = None) -> None:
     if not routers:
@@ -27,14 +28,26 @@ def _init_app_exception_handlers(app: FastAPI, handlers: Dict[int, Callable] = N
     for code, handler in handlers.items():
         app.add_exception_handler(code, handler)
 
+def _init_app_middleware(app: FastAPI, middlewares: Optional[Sequence[Callable]] = None) -> None:
+    if not middlewares:
+        return
+
+    for middleware in middlewares:
+        app.add_middleware(BaseHTTPMiddleware, dispatch=middleware)
+
+    # app.middleware()
+
+
 def create_app(config: dict = None, 
                routers: Iterable[APIRouter] = None, 
                handlers: Iterable[Callable] = None,
-               dependencies: Optional[Sequence[Depends]] = None) -> FastAPI:
+               dependencies: Optional[Sequence[Depends]] = None,
+               middlewares: Optional[Sequence[Callable]] = None) -> FastAPI:
 
     app = FastAPI(dependencies=dependencies)
     
     _init_app_routers(app, routers)
     _init_app_exception_handlers(app, handlers)
+    _init_app_middleware(app, middlewares)
 
     return app
