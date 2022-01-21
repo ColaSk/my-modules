@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 '''
-@File    :   app.py
+@File    :   application.py
 @Time    :   2022/01/07 17:26:26
 @Author  :   sk 
 @Version :   1.0
