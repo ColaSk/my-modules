@@ -15,7 +15,8 @@ from fastapi import Request
 
 
 async def before_request(request: Request, call_next):
-
-    request.headers
+    
+    # ! 异步获取request信息会被阻塞
+    # print(await request.json())
 
     return await call_next(request)
