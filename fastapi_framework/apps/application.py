@@ -11,6 +11,7 @@
 # here put the import lib
 from typing import Callable, Dict, Iterable, Optional, Sequence
 from fastapi import FastAPI, APIRouter, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -35,7 +36,18 @@ def _init_app_middleware(app: FastAPI, middlewares: Optional[Sequence[Callable]]
     for middleware in middlewares:
         app.add_middleware(BaseHTTPMiddleware, dispatch=middleware)
 
-    # app.middleware()
+
+def register_cross(app: FastAPI):
+    """deal Cross Origin Resource Sharing"""
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_methods=['*'],
+        allow_headers=['*'],
+        allow_credentials=True,
+        allow_origin_regex='https?://.*',
+        expose_headers=['X-TOKEN', 'X-Process-Time']
+    )
 
 
 def create_app(config: dict = None, 
@@ -46,6 +58,7 @@ def create_app(config: dict = None,
 
     app = FastAPI(dependencies=dependencies)
     
+    register_cross(app)
     _init_app_routers(app, routers)
     _init_app_exception_handlers(app, handlers)
     _init_app_middleware(app, middlewares)
