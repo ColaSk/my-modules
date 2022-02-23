@@ -1,1 +1,2 @@
 hbmqtt==0.9.6
+websockets==8.1 # 暂不支持 > 8.1
