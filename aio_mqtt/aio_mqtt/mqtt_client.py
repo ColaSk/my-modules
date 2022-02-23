@@ -72,7 +72,7 @@ class AsyncMQTTClient(object):
         else:
             callback = callback(self.client, message)
 
-        asyncio.run_coroutine_threadsafe(callback, self.client._loop)
+        task = asyncio.create_task(callback)
 
     async def loop_forever(self):
 
@@ -84,6 +84,9 @@ class AsyncMQTTClient(object):
 
     def __getattr__(self, __name: str) -> Any:
         return getattr(self.client, __name)
+
+    # def __del__(self):
+    #     self.client.disconnect()
 
     
 
