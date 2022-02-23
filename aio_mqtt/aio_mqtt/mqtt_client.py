@@ -11,7 +11,7 @@
 
 # here put the import lib
 import asyncio
-from email import message
+from asyncio.coroutines import iscoroutine
 import threading
 from hbmqtt.client import MQTTClient
 from typing import Any, AsyncGenerator, Callable, Union
@@ -42,8 +42,7 @@ class AsyncMQTTClient(object):
 
         with self._callback_mutex:
             self._on_message_filtered[topic] = callback
-
-    
+  
     def message_callback_remove(self, sub):
         """Remove a message callback previously registered with
         message_callback_add()."""
@@ -59,13 +58,27 @@ class AsyncMQTTClient(object):
 
     async def message_hanlder(self, message):
 
-        packet = message.publish_packet
-        print("%s => %s" % (packet.variable_header.topic_name, str(packet.payload.data)))
+        async def async_func(func, *args, **kwargs):
+            return func(*args, **kwargs)
 
-    
+        packet = message.publish_packet
+        topic = packet.variable_header.topic_name
+        
+        with self._callback_mutex:
+            callback = self._on_message_filtered.get(topic, self.on_message)
+        
+        if not iscoroutine(callback):
+            callback = async_func(callback, self.client, message)
+        else:
+            callback = callback(self.client, message)
+
+        asyncio.run_coroutine_threadsafe(callback, self.client._loop)
+
     async def loop_forever(self):
+
         run = True
         while run:
+
             message = await self.client.deliver_message()
             await self.message_hanlder(message)
 
