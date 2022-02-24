@@ -43,16 +43,16 @@ class AsyncMQTTClient(object):
         with self._callback_mutex:
             self._on_message_filtered[topic] = callback
   
-    def message_callback_remove(self, sub):
+    def message_callback_remove(self, topic: str):
         """Remove a message callback previously registered with
         message_callback_add()."""
 
-        if sub is None:
-            raise ValueError("sub must defined.")
+        if topic is None:
+            raise ValueError("topic must defined.")
 
         with self._callback_mutex:
             try:
-                del self._on_message_filtered[sub]
+                del self._on_message_filtered[topic]
             except KeyError:  # no such subscription
                 pass
 
