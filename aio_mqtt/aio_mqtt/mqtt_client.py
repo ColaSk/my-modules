@@ -22,14 +22,14 @@ class AsyncMQTTClient(object):
         self, 
         client_id: str = None, 
         config: dict = None, 
-        loop = None):
+        loop = None,
+        sem_num: int = 50):
 
         self._callback_mutex = threading.RLock()
         self._on_message_filtered = dict()
-
+        
+        self.sem = asyncio.Semaphore(sem_num, loop=loop)
         self.client = MQTTClient(client_id, config, loop)
-
-        # self.
 
     def on_message(self, client: MQTTClient, message) -> None: ...
 
@@ -80,7 +80,9 @@ class AsyncMQTTClient(object):
         while run:
 
             message = await self.client.deliver_message()
-            await self.message_hanlder(message)
+
+            async with self.sem:
+                await self.message_hanlder(message)
 
     def __getattr__(self, __name: str) -> Any:
         return getattr(self.client, __name)
