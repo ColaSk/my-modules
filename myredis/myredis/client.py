@@ -1,8 +1,5 @@
 import redis
-import datetime
 from typing import Any, Union
-
-pool = redis.ConnectionPool()
 
 class RedisClient(object):
 

@@ -1,4 +1,6 @@
 import datetime
+from contextlib import ContextDecorator
+from typing import Any, Union
 from .client import RedisBase
 
 class DistributedLock(RedisBase):
@@ -66,3 +68,23 @@ class DistributedLock(RedisBase):
     def verify_lock(self, verify):
         """验证锁"""
         return bool(self.get(self.key) == verify)
+
+
+class DistributedLockContext(ContextDecorator):
+
+    def __init__(self, lock_cls: DistributedLock = DistributedLock, *args, **kwargs):
+        self._lock_object = lock_cls(*args, **kwargs)
+
+    @property
+    def lock_object(self):
+         return self._lock_object
+
+    def __enter__(self):
+        self.lock = self.lock_object.create_lock()
+        if not self.lock:
+            raise Exception(f'Lock not acquired')
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.lock_object.verify_lock(self.lock):
+            self.lock_object.delete_lock()
