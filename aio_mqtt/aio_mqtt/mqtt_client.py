@@ -4,7 +4,7 @@
 @Time    :   2022/02/22 18:02:58
 @Author  :   sk 
 @Version :   1.0
-@Contact :   kaixuan.sun@boonray.com
+@Contact :   ldu_sunkaixuan@163.com
 @License :   (C)Copyright 2017-2018, Liugroup-NLPR-CASIA
 @Desc    :   None
 '''
