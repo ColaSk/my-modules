@@ -70,3 +70,7 @@
 ## myredis(开发中)
 
 > 关于redis的一些算法实现与应用, 对redis一些模块的封装，调整redis库的可用性
+
+## celery_framework(持续优化中)
+
+> 关于celery 框架的用法

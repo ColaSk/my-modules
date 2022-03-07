@@ -14,6 +14,7 @@ import asyncio
 from asyncio.coroutines import iscoroutine
 import threading
 from hbmqtt.client import MQTTClient
+from hbmqtt.session import IncomingApplicationMessage
 from typing import Any, AsyncGenerator, Callable, Union
 
 class AsyncMQTTClient(object):
@@ -27,8 +28,9 @@ class AsyncMQTTClient(object):
 
         self._callback_mutex = threading.RLock()
         self._on_message_filtered = dict()
+        self.loop = loop
         
-        self.sem = asyncio.Semaphore(sem_num, loop=loop)
+        self.sem = asyncio.Semaphore(sem_num, loop=loop) # 限制协程并发数
         self.client = MQTTClient(client_id, config, loop)
 
     def on_message(self, client: MQTTClient, message) -> None: ...
@@ -36,6 +38,8 @@ class AsyncMQTTClient(object):
     def on_publish(self, client: MQTTClient) -> None: ...
 
     def message_callback_add(self, topic: str, callback: Union[Callable, AsyncGenerator]):
+        """Registered message callback
+        """
 
         if callback is None or topic is None:
             raise ValueError("sub and callback must both be defined.")
@@ -45,7 +49,8 @@ class AsyncMQTTClient(object):
   
     def message_callback_remove(self, topic: str):
         """Remove a message callback previously registered with
-        message_callback_add()."""
+        message_callback_add().
+        """
 
         if topic is None:
             raise ValueError("topic must defined.")
@@ -56,7 +61,10 @@ class AsyncMQTTClient(object):
             except KeyError:  # no such subscription
                 pass
 
-    async def message_hanlder(self, message):
+    async def message_hanlder(self, message: IncomingApplicationMessage):
+        """Message handler, The message handler gives the message to message_hanlder(), 
+        and he will search for the callback and join the loop
+        """
 
         async def async_func(func, *args, **kwargs):
             return func(*args, **kwargs)
@@ -71,24 +79,25 @@ class AsyncMQTTClient(object):
             callback = async_func(callback, self.client, message)
         else:
             callback = callback(self.client, message)
-
-        task = asyncio.create_task(callback)
+        
+        # Used in the collaboration process to add the collaboration process to the current
+        # loop
+        asyncio.create_task(callback)
 
     async def loop_forever(self):
 
         run = True
+        # TODO: 异常处理
         while run:
-
             message = await self.client.deliver_message()
-
             async with self.sem:
                 await self.message_hanlder(message)
 
     def __getattr__(self, __name: str) -> Any:
         return getattr(self.client, __name)
 
-    # def __del__(self):
-    #     self.client.disconnect()
+    def __del__(self):
+        self.client.disconnect()
 
     
 
