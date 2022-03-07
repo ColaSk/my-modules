@@ -89,9 +89,12 @@ class AsyncMQTTClient(object):
         run = True
         # TODO: 异常处理
         while run:
-            message = await self.client.deliver_message()
-            async with self.sem:
-                await self.message_hanlder(message)
+            try:
+                message = await self.client.deliver_message()
+                async with self.sem:
+                    await self.message_hanlder(message)
+            except:
+                pass
 
     def __getattr__(self, __name: str) -> Any:
         return getattr(self.client, __name)
