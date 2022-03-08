@@ -11,7 +11,7 @@
 
 # here put the import lib
 import asyncio
-from asyncio.coroutines import iscoroutine
+from asyncio.coroutines import iscoroutine, iscoroutinefunction
 import threading
 from hbmqtt.client import MQTTClient
 from hbmqtt.session import IncomingApplicationMessage
@@ -28,10 +28,15 @@ class AsyncMQTTClient(object):
 
         self._callback_mutex = threading.RLock()
         self._on_message_filtered = dict()
-        self.loop = loop
+
+        if loop is not None:
+            self._loop = loop
+        else:
+            self._loop = asyncio.get_event_loop()
         
         self.sem = asyncio.Semaphore(sem_num, loop=loop) # 限制协程并发数
         self.client = MQTTClient(client_id, config, loop)
+        self.is_run = True
 
     def on_message(self, client: MQTTClient, message) -> None: ...
 
@@ -69,13 +74,12 @@ class AsyncMQTTClient(object):
         async def async_func(func, *args, **kwargs):
             return func(*args, **kwargs)
 
-        packet = message.publish_packet
-        topic = packet.variable_header.topic_name
+        topic = message.topic
         
         with self._callback_mutex:
             callback = self._on_message_filtered.get(topic, self.on_message)
         
-        if not iscoroutine(callback):
+        if not iscoroutinefunction(callback):
             callback = async_func(callback, self.client, message)
         else:
             callback = callback(self.client, message)
@@ -86,9 +90,8 @@ class AsyncMQTTClient(object):
 
     async def loop_forever(self):
 
-        run = True
         # TODO: 异常处理
-        while run:
+        while self.is_run:
             try:
                 message = await self.client.deliver_message()
                 async with self.sem:
