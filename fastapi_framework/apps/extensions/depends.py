@@ -56,7 +56,7 @@ class HeaderDependBase(object):
         self.connection = connection
 
 
-async  def app_depend(
+async def app_depend(
     header: HeaderDependBase = Depends(HeaderDependBase), 
     cookie: CookieDependBase = Depends(CookieDependBase)
 ):

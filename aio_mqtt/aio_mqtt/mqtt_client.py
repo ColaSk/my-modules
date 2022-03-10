@@ -97,6 +97,8 @@ class AsyncMQTTClient(object):
                 message = await self.client.deliver_message()
                 async with self.sem:
                     await self.message_hanlder(message)
+            except asyncio.TimeoutError:
+                pass
             except:
                 pass
 
