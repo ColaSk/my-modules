@@ -11,6 +11,30 @@
 
 # here put the import lib
 
-class Admin(object): ...
 
-class UserOperator(object): ...
+class User(object):
+
+    def __init__(self, username: str):
+        self._username = username
+    
+    @property
+    def username(self):
+        return self._username
+
+    def check_password(self, password: str) -> bool:
+        # 检验密码
+        ...
+
+class UserOperator(object): 
+
+    def login(self, username: str, password: str):
+
+        user = User(username)
+
+        if user.check_password(password):
+            pass
+        else:
+            pass
+    
+
+    def logout(self, username: str): ...

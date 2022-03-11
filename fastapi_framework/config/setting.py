@@ -11,9 +11,81 @@
 
 # here put the import lib
 import os
+from typing import Optional
+from pydantic import BaseModel
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-class Setting: ...
+class DBConfig(BaseModel):
+    
+    host: Optional[str] = '127.0.0.1'
+    port: Optional[int] = 3306
+    database: str
+    user: str
+    pwd: str
 
-class LogConfig: ...
+
+class LogConfig(BaseModel): ...
+
+
+class TortoiseORMSetting(object):
+
+    def __init__(self, db_config: DBConfig):
+
+        self._db_config = db_config
+
+    def _get_base_config(self, apps: dict) -> dict:
+
+        return {
+            "connections": {
+                "default": {
+                    "engine": "tortoise.backends.mysql",
+                    "credentials": {
+                        "host": self._db_config.host,
+                        "port": self._db_config.port,
+                        "database": self._db_config.database,
+                        "user": self._db_config.user,
+                        "password": self._db_config.pwd,
+                        'charset': 'utf8mb4',
+                    }
+                }
+            },
+            "apps": apps,
+            "use_tz": False,
+            'timezone': 'Asia/Shanghai'
+        } 
+    
+    @property
+    def orm_link_config(self) -> dict:
+
+        orm_apps_setting = {
+             'models': {
+                'models': [
+                    'aerich.models',
+                    'apps.models.models'
+                ],
+                'default_connection': 'default',
+            }
+        }
+
+        return self._get_base_config(orm_apps_setting)
+
+
+class Setting(BaseModel):
+
+    db: DBConfig
+
+
+# 临时配置 后续添加配置文件
+db_config = {
+    'host': '127.0.0.1',
+    'port': 11000,
+    'database': 'fastapitest',
+    'user': 'root',
+    'pwd': 'root'
+}
+
+setting = Setting(db=DBConfig(**db_config))
+
+ORM_LINK_CONF = TortoiseORMSetting(setting.db).orm_link_config
+

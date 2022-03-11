@@ -11,6 +11,7 @@
 # here put the import lib
 from typing import Callable, Dict, Iterable, Optional, Sequence
 from fastapi import FastAPI, APIRouter, Depends
+from tortoise.contrib.fastapi import register_tortoise
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -36,7 +37,6 @@ def _init_app_middleware(app: FastAPI, middlewares: Optional[Sequence[Callable]]
     for middleware in middlewares:
         app.add_middleware(BaseHTTPMiddleware, dispatch=middleware)
 
-
 def register_cross(app: FastAPI):
     """deal Cross Origin Resource Sharing"""
 
@@ -49,12 +49,15 @@ def register_cross(app: FastAPI):
         expose_headers=['X-TOKEN', 'X-Process-Time']
     )
 
+def _init_db(app: FastAPI, config: dict):
+    register_tortoise(app, config=config)
 
 def create_app(config: dict = None, 
                routers: Iterable[APIRouter] = None, 
                handlers: Iterable[Callable] = None,
                dependencies: Optional[Sequence[Depends]] = None,
-               middlewares: Optional[Sequence[Callable]] = None) -> FastAPI:
+               middlewares: Optional[Sequence[Callable]] = None,
+               db_config: dict = None) -> FastAPI:
 
     app = FastAPI(dependencies=dependencies)
     
@@ -62,5 +65,6 @@ def create_app(config: dict = None,
     _init_app_routers(app, routers)
     _init_app_exception_handlers(app, handlers)
     _init_app_middleware(app, middlewares)
+    _init_db(app, db_config)
 
     return app

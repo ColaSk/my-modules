@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:8.0.26
+    container_name: my_modules_fastapi_db
+    restart: always
+    ports:
+      - 11000:3306
+    environment:
+      MYSQL_DATABASE: fastapitest
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./fastapi_data/conf/mysql_conf:/etc/mysql/conf.d
+      - ./fastapi_data/data/mysql/data:/var/lib/mysql
