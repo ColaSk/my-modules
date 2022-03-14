@@ -11,61 +11,51 @@
 
 # here put the import lib
 
-from apps.models.models import User
+from apps.models.models import User 
 from apps.models.mixin import ModelObject
+from apps.extensions import create_token, verify_token
 from tortoise.transactions import atomic
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from apps.exceptions.exception import NotFound
-from datetime import date, datetime, timedelta
-from typing import Optional, Tuple
-from jose import JWTError, jwt
-from config.setting import SECRET_KEY, ALGORITHM
+from typing import Tuple
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/admin/login") # TODO：放在他应该在的地方
 
+
+class UserObject(object):
+
+    def __init__(self, id: int) -> None:
+        self._user = ModelObject(User, id).object(is_del=False)
+
+    @property
+    async def user(self):
+        return await self._user
+    
+class CurrUser(UserObject): 
+    """当前用户
+    单独处理权限问题
+    """
+
+    async def to_dict_async(self):
+        data_attr = ('id', 'created_time', 'name')
+        user = await self.user
+        return user.to_dict(data_attr)
+
 class UserOperator(object): 
-    
-    @staticmethod
-    def create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-        """创建token
-
-        Args:
-            data (dict): token data
-            expires_delta (Optional[timedelta], optional): 两个时间的差值. Defaults to None.
-
-        Returns:
-            _type_: _description_
-        """
-        to_encode = data.copy()
-        if expires_delta:
-            expire = datetime.now() + expires_delta
-        else:
-            expire = datetime.now() +  timedelta(minutes=15)  
-
-        to_encode.update({'exp': expire})
-        
-        return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-    @staticmethod
-    def check_token(token: str = Depends(oauth2_scheme)):
-        try:
-            return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) 
-        except JWTError as e:
-            raise e
-    
+      
     @classmethod
-    def curr_user(cls, token: dict = Depends(oauth2_scheme)):
-        try:
-            return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) 
-        except JWTError as e:
-            raise e   
+    def curr_user(cls, token: dict = Depends(oauth2_scheme)) -> CurrUser:
+        """获取当前用户"""
+        userdata = verify_token(token)
+        return CurrUser(userdata.get('data', {}).get('id'))
 
     @classmethod
     async def login(cls, username: str, password: str) -> Tuple[str, dict]:
 
-        user = await User.get_or_none(name=username)
+        user = await User.get_or_none(name=username, is_del=False)
 
         if not user:
             raise NotFound(msg=f' not found username: {username} user')
@@ -73,10 +63,10 @@ class UserOperator(object):
         if not user.check_password(password):
             raise Exception('password error')
 
-        token = cls.create_token({'sub': user.name})
-
         userdata = user.to_dict(('id', 'created_time', 'name'))
-        
+
+        token = create_token(userdata)
+
         return token, userdata
      
     @classmethod
