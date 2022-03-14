@@ -1,6 +1,7 @@
+from apps.exceptions import NotFound
 from tortoise.models import Model
 from tortoise import fields
-
+from typing import Union
 
 MODEL_TIME_FORMART = '%Y-%m-%d %H:%M:%S'
 
@@ -24,4 +25,42 @@ class ModelBase(Model):
         abstract = True
 
 
-class ModelMixin(object): ...
+class ModelMixin(object): 
+
+    def to_dict(self, selects: tuple = None, excludes: tuple = None):
+        
+        if not hasattr(self, '_meta'):
+            raise AssertionError('<%r> does not have attribute for _meta' % self)
+
+        if selects:
+            return {i: getattr(self, i) for i in selects}
+        elif excludes:
+            return {i: getattr(self, i) for i in self._meta.fields if i not in excludes}
+        else:
+            return {i: getattr(self, i) for i in self._meta.fields}
+
+class ModelObject(object):
+
+    def __init__(self, model: Model, pk: int):
+        """_summary_
+
+        Args:
+            model (Model): 模型
+            pk (int): 主键
+        """        
+
+        self._model = model
+        self._pk = pk
+
+    async def object(self, is_del: Union[bool, None]):
+        
+        if is_del == None:
+            obj = await self._model.get_or_none(id=self._pk)
+        else:
+            obj = await self._model.get_or_none(id=self._pk, is_del=is_del)
+        
+        if not obj:
+            raise NotFound(msg=f'{self._model} not found pk: {self._pk}, is_del: {is_del} object')
+        
+        return obj
+        

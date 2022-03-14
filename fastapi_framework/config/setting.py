@@ -16,6 +16,10 @@ from pydantic import BaseModel
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# TODO：放在该放的位置
+SECRET_KEY = "23bec386829bd6688b9940534113db03592ed7e5f70aa3a509a5a1d3f135a1e9"
+ALGORITHM = "HS256"
+
 class DBConfig(BaseModel):
     
     host: Optional[str] = '127.0.0.1'

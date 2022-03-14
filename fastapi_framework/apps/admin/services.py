@@ -11,30 +11,83 @@
 
 # here put the import lib
 
+from apps.models.models import User
+from apps.models.mixin import ModelObject
+from tortoise.transactions import atomic
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-class User(object):
+from apps.exceptions.exception import NotFound
+from datetime import date, datetime, timedelta
+from typing import Optional, Tuple
+from jose import JWTError, jwt
+from config.setting import SECRET_KEY, ALGORITHM
 
-    def __init__(self, username: str):
-        self._username = username
-    
-    @property
-    def username(self):
-        return self._username
-
-    def check_password(self, password: str) -> bool:
-        # 检验密码
-        ...
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/admin/login") # TODO：放在他应该在的地方
 
 class UserOperator(object): 
-
-    def login(self, username: str, password: str):
-
-        user = User(username)
-
-        if user.check_password(password):
-            pass
-        else:
-            pass
     
+    @staticmethod
+    def create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+        """创建token
 
-    def logout(self, username: str): ...
+        Args:
+            data (dict): token data
+            expires_delta (Optional[timedelta], optional): 两个时间的差值. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
+        to_encode = data.copy()
+        if expires_delta:
+            expire = datetime.now() + expires_delta
+        else:
+            expire = datetime.now() +  timedelta(minutes=15)  
+
+        to_encode.update({'exp': expire})
+        
+        return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    @staticmethod
+    def check_token(token: str = Depends(oauth2_scheme)):
+        try:
+            return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) 
+        except JWTError as e:
+            raise e
+    
+    @classmethod
+    def curr_user(cls, token: dict = Depends(oauth2_scheme)):
+        try:
+            return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) 
+        except JWTError as e:
+            raise e   
+
+    @classmethod
+    async def login(cls, username: str, password: str) -> Tuple[str, dict]:
+
+        user = await User.get_or_none(name=username)
+
+        if not user:
+            raise NotFound(msg=f' not found username: {username} user')
+
+        if not user.check_password(password):
+            raise Exception('password error')
+
+        token = cls.create_token({'sub': user.name})
+
+        userdata = user.to_dict(('id', 'created_time', 'name'))
+        
+        return token, userdata
+     
+    @classmethod
+    def logout(cls, username: str): ...
+
+    @classmethod
+    async def create(cls, username: str, password: str):
+        user = User(name=username)
+        user.password = password # 密码哈希
+        await user.save()
+        return user
+        
+
+

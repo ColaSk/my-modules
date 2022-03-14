@@ -17,12 +17,17 @@ class UnicornException(ExceptionBase):
         self.status_code = status_code
         self.msg = msg
 
+class NotFound(ExceptionBase):
+     def __init__(self, status_code: int = 404, msg: str = "not found exception"):
+        self.status_code = status_code
+        self.msg = msg
+
 """Exception handling definition
 # TODO: 1.迁移处理函数
 # TODO: 2.适配HttpExc
 # TODO: 3.状态码定义
 """
-async def core_exception_handler(request: Request, exc: Exception):
+async def base_exception_handler(request: Request, exc: Exception):
     """Centralized exception handling"""
 
     # TODO: 异常记录
@@ -34,3 +39,16 @@ async def core_exception_handler(request: Request, exc: Exception):
         content=responce.dict()
     )
 
+
+
+async def exception_handler(request: Request, exc: Exception):
+    """Centralized exception handling"""
+
+    # TODO: 异常记录
+
+    responce = error_response(500,  exc.__str__())
+
+    return JSONResponse(
+        status_code=responce.code,
+        content=responce.dict()
+    )

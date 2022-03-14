@@ -1,7 +1,9 @@
-from .exception import core_exception_handler
-from .exception import UnicornException
+from .exception import base_exception_handler, exception_handler
+from .exception import UnicornException, NotFound
 
 
 exception_handlers = {
-    UnicornException : core_exception_handler
+    UnicornException : base_exception_handler,
+    Exception: exception_handler,
+    NotFound: base_exception_handler
 }
