@@ -1,14 +1,13 @@
-from typing import Any, Optional
-from fastapi import APIRouter, Response, Depends
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from apps.extensions import success_response
-from apps.extensions import RequestBase, RequestDependBase
-from apps.exceptions.exception import UnicornException
+from apps.extensions import RequestDependBase
 from apps.extensions.route import MyRoute
 
 from .services import UserOperator, CurrUser
+from .schemas import CreateUserRequest
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/admin/login") # TODO：放在他应该在的地方
+
 router = APIRouter(route_class=MyRoute)
 
 @router.post('/login', status_code=201)
@@ -21,9 +20,6 @@ async def Login(
     result = {'token': token, 'user': userdata}
     return success_response(data=result)
 
-class CreateUserRequest(RequestBase):
-    username: str
-    password: str
 
 @router.post('/users', status_code=201)
 async def create_user(

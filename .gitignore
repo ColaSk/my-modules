@@ -4,3 +4,5 @@ logs
 config.yaml
 
 docker_compose/*data
+
+config.toml

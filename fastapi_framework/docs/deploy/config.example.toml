@@ -1,0 +1,28 @@
+title = "local config"
+
+[db]
+
+host = '127.0.0.1'
+port = 11000
+database = "fastapitest"
+user = "root"
+pwd = "root"
+
+
+[app]
+
+title =  "FastAPI"
+description = "demo"
+version = "1.0.1"
+
+
+[log]
+
+logpath = ""
+level = "DEBUG"
+
+[jwt]
+
+secret_key = "23bec386829bd6688b9940534113db03592ed7e5f70aa3a509a5a1d3f135a1e9"
+algorithm = "HS256"
+token_expires_m = 30

@@ -33,7 +33,8 @@ class UserObject(object):
     @property
     async def user(self):
         return await self._user
-    
+
+
 class CurrUser(UserObject): 
     """当前用户
     单独处理权限问题
@@ -43,6 +44,7 @@ class CurrUser(UserObject):
         data_attr = ('id', 'created_time', 'name')
         user = await self.user
         return user.to_dict(data_attr)
+
 
 class UserOperator(object): 
       

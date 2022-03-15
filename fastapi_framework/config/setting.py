@@ -11,14 +11,17 @@
 
 # here put the import lib
 import os
-from typing import Optional
+from typing import Optional, Dict, Union, Any
 from pydantic import BaseModel
+import pytomlpp
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# TODO：放在该放的位置
-SECRET_KEY = "23bec386829bd6688b9940534113db03592ed7e5f70aa3a509a5a1d3f135a1e9"
-ALGORITHM = "HS256"
+class JWTConfig(BaseModel):
+    secret_key: str = "23bec386829bd6688b9940534113db03592ed7e5f70aa3a509a5a1d3f135a1e9"
+    algorithm: str = "HS256"
+    token_expires_m: int = 30
+
 
 class DBConfig(BaseModel):
     
@@ -31,6 +34,13 @@ class DBConfig(BaseModel):
 
 class LogConfig(BaseModel): ...
 
+class AppConfig(BaseModel):
+
+    title: Optional[str] = 'FastAPI'
+    description: Optional[str] = ''
+    version: Optional[str] = "1.0.0"
+    license_info: Optional[Dict[str, Union[str, Any]]] = {}
+    contact: Optional[Dict[str, Union[str, Any]]] = {}
 
 class TortoiseORMSetting(object):
 
@@ -78,18 +88,14 @@ class TortoiseORMSetting(object):
 class Setting(BaseModel):
 
     db: DBConfig
+    app: AppConfig
+    jwt: JWTConfig = None
 
 
-# 临时配置 后续添加配置文件
-db_config = {
-    'host': '127.0.0.1',
-    'port': 11000,
-    'database': 'fastapitest',
-    'user': 'root',
-    'pwd': 'root'
-}
+def get_setting(confile: str) -> Setting:
 
-setting = Setting(db=DBConfig(**db_config))
+    conf = pytomlpp.load(confile)
+    path = os.path.join(BASE_DIR, confile)
+    return Setting.parse_obj(conf)
 
-ORM_LINK_CONF = TortoiseORMSetting(setting.db).orm_link_config
 

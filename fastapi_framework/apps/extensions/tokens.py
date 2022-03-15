@@ -13,7 +13,7 @@
 from typing import Optional
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from config.setting import SECRET_KEY, ALGORITHM
+from config import setting
 
 
 def create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -39,7 +39,7 @@ def create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     }
 
 
-    return jwt.encode(token_dict, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(token_dict, setting.jwt.secret_key, algorithm=setting.jwt.algorithm)
 
 def verify_token(token: str) -> dict:
     """验证token
@@ -54,6 +54,6 @@ def verify_token(token: str) -> dict:
         dict: token info
     """    
     try:
-        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM]) 
+        return jwt.decode(token, setting.jwt.secret_key, algorithms=[setting.jwt.algorithm]) 
     except JWTError as e:
         raise e

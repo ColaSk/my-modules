@@ -31,6 +31,9 @@ def _init_app_exception_handlers(app: FastAPI, handlers: Dict[int, Callable] = N
         app.add_exception_handler(code, handler)
 
 def _init_app_middleware(app: FastAPI, middlewares: Optional[Sequence[Callable]] = None) -> None:
+
+    register_cross(app)
+
     if not middlewares:
         return
 
@@ -46,7 +49,7 @@ def register_cross(app: FastAPI):
         allow_headers=['*'],
         allow_credentials=True,
         allow_origin_regex='https?://.*',
-        expose_headers=['X-TOKEN', 'X-Process-Time']
+        expose_headers=['X-TOKEN', 'X-Process-Time', '*']
     )
 
 def _init_db(app: FastAPI, config: dict):
@@ -58,10 +61,12 @@ def create_app(config: dict = None,
                dependencies: Optional[Sequence[Depends]] = None,
                middlewares: Optional[Sequence[Callable]] = None,
                db_config: dict = None) -> FastAPI:
+               
+    if not config:
+        config = {}
 
-    app = FastAPI(dependencies=dependencies)
+    app = FastAPI(**config, dependencies=dependencies)
     
-    register_cross(app)
     _init_app_routers(app, routers)
     _init_app_exception_handlers(app, handlers)
     _init_app_middleware(app, middlewares)
