@@ -94,8 +94,8 @@ class Setting(BaseModel):
 
 def get_setting(confile: str) -> Setting:
 
-    conf = pytomlpp.load(confile)
     path = os.path.join(BASE_DIR, confile)
+    conf = pytomlpp.load(path)
     return Setting.parse_obj(conf)
 
 
