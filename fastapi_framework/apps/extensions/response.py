@@ -9,14 +9,14 @@ class ResponseBase(BaseModel):
     msg: str = None
 
 def success_response(data: Any, 
-                     code: int = 201, 
+                     code: int = 200, 
                      msg : str = None, 
                      res_cls: ResponseBase = ResponseBase):
 
     return res_cls(success=True, data=data, code=code, msg=msg)
 
 
-def error_response(code: int = 401, 
+def error_response(code: int = 404, 
                    msg : str = 'unknown error', 
                    res_cls: ResponseBase = ResponseBase):
 

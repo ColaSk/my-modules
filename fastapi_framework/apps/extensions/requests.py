@@ -1,6 +1,7 @@
+import imp
 from pydantic import BaseModel
 from fastapi import Depends
-
+from typing import Dict, Union
 
 from .depends import CookieDependBase, HeaderDependBase
 
@@ -10,8 +11,8 @@ class RequestBase(BaseModel): ...
 
 def request_base(
     header: HeaderDependBase = Depends(HeaderDependBase), 
-    cookie: dict = Depends(CookieDependBase)
-):
+    cookie: CookieDependBase = Depends(CookieDependBase)
+) -> Dict[str, Union[CookieDependBase, HeaderDependBase]]:
 
     request = dict(
         header = header,
