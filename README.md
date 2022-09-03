@@ -74,3 +74,13 @@
 ## celery_framework(持续优化中)
 
 > 关于celery 框架的用法
+
+## elasticsearch_
+
+> 关于elasticsearch的测试使用
+
+### 问题
+
+
+> 部署时配置文件挂载存在问题（elasticsearch.yml: Device or resource busy），目前不采用挂载可以正常启动
+> 需要解决此问题

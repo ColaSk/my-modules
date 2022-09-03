@@ -1,0 +1,30 @@
+version: '3.3'
+services:
+  elasticsearch:
+    image: elasticsearch:8.4.0
+    container_name: elasticsearch
+    restart: always
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./logs:/usr/share/elasticsearch/logs
+      - ./data:/usr/share/elasticsearch/data
+      # - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  es-head:
+    image: docker.io/mobz/elasticsearch-head:5
+    container_name: es-head
+    ports:
+      - 9100:9100
+    links:
+      - elasticsearch

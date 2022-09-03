@@ -6,3 +6,6 @@ config.yaml
 docker_compose/*data
 
 config.toml
+
+elasticsearch_/deploy/logs
+elasticsearch_/deploy/data
